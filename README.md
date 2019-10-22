@@ -1,4 +1,4 @@
-# class16Lab
+# class17Lab
 
 <p align="center">
   <img width="640" height="200" src="https://github.com/mhc-stat340-f2019-sec02/class16Lab/blob/master/featured.png">
