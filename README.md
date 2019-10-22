@@ -17,12 +17,12 @@ The goal of this lab is to pick your favorite candy characteristics and build a 
 
 Instructions:
 	1. Fork the 538 repository
-	    * Rep:https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking
+	    - Rep:https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking
     2. Choose a candy characteristic and build a logistic regression model. Your model must include
-	    * 3 covariates
-		* Predict a different candy characteristic than the one we go over in class.
+	    - 3 covariates
+		- Predict a different candy characteristic than the one we go over in class.
 	3. Describe the coefficients corresponding to your covariates
-		* Explain what the coefficients mean in terms of **log odds** 
-		* Explain what the coefficients mean in terms of **odds**
-		* Identify any covariates that are significant
+		- Explain what the coefficients mean in terms of **log odds** 
+		- Explain what the coefficients mean in terms of **odds**
+		- Identify any covariates that are significant
 	4. Report the Accuracy of your logistic regression model
