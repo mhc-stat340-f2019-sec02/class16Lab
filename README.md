@@ -1,7 +1,7 @@
 # class16Lab
 
 <p align="center">
-  <img width="320" height="200" src="https://github.com/mhc-stat340-f2019-sec02/class16Lab/blob/master/featured.png">
+  <img width="640" height="200" src="https://github.com/mhc-stat340-f2019-sec02/class16Lab/blob/master/featured.png">
 </p>
 
 This lab explores a data set of [candy comparisons](https://fivethirtyeight.com/features/the-ultimate-halloween-candy-power-ranking/).
