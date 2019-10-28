@@ -1,0 +1,50 @@
+---
+title: "logreglab esther"
+author: "esther"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(readr)
+library(dplyr)
+```
+
+```{r data}
+data <- read.csv(url("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"))
+
+head(data)
+
+data %>% 
+  filter(crispedricewafer == 1)
+```
+```{r logistic model}
+model <- glm(crispedricewafer ~ chocolate + bar + fruity, data = data, family = binomial)
+
+print(summary(model))
+```
+I wanted to predict if a candy includes some crispyricewafer becuase I like them usually!!!!!!!! Twix, crunch, and kit kats are some of the best candy. 
+
+log(p/1-p) = -20 + 17.525(chocolate) + 1.861(bar) - 14.844(fruity)
+
+The intercept is -20, the chocolate coefficient is 17.525, the bar coefficient is 1.861, and the fruity coefficient is -14.844. These coefficients are in terms of log odds. If log odds is negative, it means that it would be classified as not crispedricewafer, or unlikely to be a crispricewafer, but if it is positive then it is more likely to have crispedricewafer. If it is chocolate or a bar it has a higher chance of having crispricewafer, but if it is fruity it has less of a chance.
+
+In terms of odds, you would exponentiate both sides of the equation. And the odds shows you how much one unit of each covariate increases or decreases proportionally when holding the others constant. For the presence of chocolate, the odds will increase by e^17.525 times. If it is a bar, the odds will increase e^1.861 times, and if it is fruity the odds that it has crispedricewafer are decreased times e^-14.844.
+
+None of my covariates are very significant. :(
+```{r accuracy check}
+coefficients = as.matrix(coef(model))
+print(coefficients)
+
+trainingData  = data[,c('chocolate','fruity','bar')]
+trainingData  = cbind(1,trainingData)
+
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(data$crispedricewafer==decisions)
+print(Accuracy)
+```
+The model makes correct guesses 91% of the time by including chocolate, bar, and fruity as covariates.
