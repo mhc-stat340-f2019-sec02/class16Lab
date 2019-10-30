@@ -1,0 +1,61 @@
+---
+title: "TianyiZhou & Yongyi(Sophie) Peng Lab17"
+output: pdf_document
+---
+####Part1
+```{r}
+data = read.csv("https://raw.githubusercontent.com/tomcm39/data/master/candy-power-ranking/candy-data.csv")
+print(nrow(data))
+print(data)
+```
+
+####Part2
+```{r}
+model = glm(chocolate~peanutyalmondy+pricepercent+caramel, data, family=binomial)
+print(summary(model))
+```
+our model is attempting to classify candy as chocolate or not. We chose 3 covariates: Does the sugar contain peanuts, peanut butter or almonds? (peanutyalmondy) Is there caramel in the candy?(caramel) and the unit price percentile comapred to the rest of the set (pricepercent).
+
+I fit a logistic regression model to my candy data. y = 
+
+[log-odds]
+the intercept equals $-2.3813$, peanutyalmondy equals $1.8155$, caramel equals $0.9852$, and pricepercent equals $3.4462$. Candy that contains peanuts, peanut butter or almonds/with higher price/that contains caramel could indicate it is chocolate (positive log-odds).
+
+[odds]
+the intercept equals $e^{-2.3813}=0.092$, peanutyalmondy equals $e^(1.8155)=6.14$, caramel equals $e^(0.9852)=2.68$, and pricepercent equals $e^(3.4462)=31.38$.   
+Candy that contains peanuts, peanut butter or almonds results in a $6.14$ times increase in the the odds it is chocolate.   
+A one unit increase in the price percentile results in a 31.38 times increase in the odds it is chocolate.   
+Candy that contains caramel results in a 2.68 times increase in the odds it is chocolate.
+
+[siginificant variables]
+The price percentile and whether the candy contains peanuts, peanut butter or almonds are  significant covariates. The pvalues <0.05 and indicate the estimated log-odds are unlikely to have come from a null distribution centered at a log-odds of $0$.
+
+
+####Part3
+```{r}
+colors = ifelse(data$chocolate==1,'orange','purple')
+plot(data$pricepercent,data$peanutyalmondy,tck=0.02,col=colors)
+
+coefficients = as.matrix(coef(model))
+print(coefficients)
+
+x = seq(0,1,0.01)
+lines(x, (-coefficients[1]/coefficients[2])-(coefficients[3]/coefficients[2])*x)
+```
+
+
+####Part4
+Make prediction on training data
+```{r}
+trainingData  = data[,c('peanutyalmondy','sugarpercent','pricepercent')]
+trainingData  = cbind(1,trainingData)
+
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(data$chocolate==decisions)
+print(Accuracy)
+```
+we can make correct guesses about whether the candy is chocolate approximately 72.94& of the time by fitting a logistic regression model and including does the sugar contain peanuts, peanut butter or almonds? (peanutyalmondy) Is there caramel in the candy?(caramel) and the unit price percentile comapred to the rest of the set (pricepercent).
+
