@@ -1,0 +1,49 @@
+---
+title: "Lab 17"
+author: "Stephanie Spitzer"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/spitz22s/data/master/candy-power-ranking/candy-data.csv")
+print(nrow(data))
+print(data)
+```
+
+#Logistic Model
+```{r}
+model <- glm(chocolate~pricepercent+bar+pluribus, data = data)
+print(summary(model))
+```
+
+#Description of Target Variables and Covariates
+I fit a logistic regression to my candy data. My model is attempting to classify whether a candy contains chocolate or not. I chose three covariates: The unit price percentile compared to the other candy, whether or not the candy is a bar, and whether or not the candy is one of many in the bag or box. 
+
+#Description Using Log-Odds
+In terms of log-odds, the intercept equals 0.09, price percentile equals 0.47, whether a candy is a bar equals 0.52, and whether a candy is one of many in a bag or box equals -0.01. Candy that is cheaper and in bar form could indicate that the candy contains chocolate (positive log-odds). However, if there is only one candy in the bag or box, then this model indicates that the candy is not likely to contain chocolate (negative log-odds).
+
+#Description Using Odds
+In terms of odds, the intercept equals e^0.09 = 1.09, price percentile equals e^0.47 = 1.60, whether a candy is a bar equals e^0.52 = 1.68, and whether the candy is one of many e^-0.01 = 0.99. A one unit increase in the price percentile results in a 1.60 times increase in the odds that the candy contains chcolate. A one unit increase in whether a candy is a bar results in a 1.68 times increase in the odds that the candy contains chcocolate. A one unit increase in whether the candy is one of many candies in the box or bag results in a 0.99s time decrease in the odds that the candy contains chocolate. 
+
+#Description of Significant Variables
+The price percentile is a significant covariate. The p-value is <0.01 and indicates that the estimated log-odds is unlikely to form a null distribution centered at a log-odds of 0. Also, whether the candy is a bar is a significant covariate. The p-value is <0.001 and indicates that the estimated log-odds is unlikely to form a null distribution centered at a log-odds of 0.  
+
+
+#Accuracy of Data
+```{r}
+training = data[,c('pricepercent', 'bar', 'pluribus')]
+training = cbind(1, training)
+
+predictions = as.matrix(training)
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+accuracy = mean(data$chocolate==decisions)
+print(accuracy)
+```
+
+We can make correct guesses about whether the candy contains chocolate approximately 44% of the time by fitting a logistic regression model and including the price percentile, whether the candy is a bar, and whether the candy is one of many in a bag or box.
