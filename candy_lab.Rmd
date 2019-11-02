@@ -1,0 +1,95 @@
+---
+title: "candy_lab"
+output: html_document
+---
+# class17Lab
+
+<p align="center">
+  <img width="640" height="200" src="https://github.com/mhc-stat340-f2019-sec02/class16Lab/blob/master/featured.png">
+</p>
+
+This lab explores a data set of [candy comparisons](https://fivethirtyeight.com/features/the-ultimate-halloween-candy-power-ranking/).
+
+The 538 team created an experiment that collected over 250,000 data points.
+The experiment presented two randomly chosen types of candy to participants and asked them to chose which they would prefer as a trick-or-treater.
+The original experiment is [here](http://walthickey.com/2017/10/18/whats-the-best-halloween-candy/).
+
+The dataset description can be found [here](https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking).
+
+The data collected characteristics of each type of candy presented to participants.
+The goal of this lab is to pick your favorite candy characteristics and build a logistic model that predicts this characteristic.
+
+Instructions:
+1. Fork the 538 repository
+	- Rep:https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking
+2. Choose a candy characteristic and build a logistic regression model. Your model must include
+	- 3 covariates
+	- Predict a different candy characteristic than the one we go over in class.
+3. Describe the coefficients corresponding to your covariates
+	- Explain what the coefficients mean in terms of **log odds** 
+	- Explain what the coefficients mean in terms of **odds**
+	- Identify any covariates that are significant
+4. Report the Accuracy of your logistic regression model
+
+
+```{r}
+candy <- read.csv("./candy-data.csv")
+head(candy, 10)
+```
+
+# 2. Choose a candy characteristic and build a logistic regression model. 
+
+Three covariates: crispedricewafer, chocolate, pricepercent
+Prediction: is it a candy bar?
+```{r}
+model <- glm(bar~crispedricewafer+chocolate+pricepercent, data=candy, family=binomial)
+summary(model)
+```
+
+
+# 3. Describe the coefficients corresponding to your covariates
+
+# Explain what the coefficients mean in terms of **log odds** 
+- In terms of log-odds, the intercept is -5.623, crispedricewafer (crisped rice, wafers, or a cookie component) percentile is 1.401, chocolate percentile is 3.175, and unit price percentile is 3.768. So, candy with crispedricewafer (crisped rice, wafers, or a cookie component), chocolate and higher price suggests it is candy bar, because of the positive log-odds of three covariates.
+
+	
+# Explain what the coefficients mean in terms of **odds**
+```{r}
+intercept <- exp(-5.623)
+intercept
+
+crispedricewafer <- exp(1.401)
+crispedricewafer
+
+chocolate <- exp(3.175)
+chocolate
+
+pricepercent <- exp(3.768)
+pricepercent
+```
+- The intercept is is 0.0036; crispedricewafer (crisped rice, wafers, or a cookie component) percentile is 4.06, chocolate percentile is 23.93, unit price percentile is 43.29
+- For a candy containing crispedricewafer (crisped rice, wafers, or a cookie component), its every additional unit results in 4.06 times increase in the odds it is candy bar.
+- For candy containing chocolate, its every additional unit results in 23.93 times increase in the odds it is candy bar.
+- A one unit increase in the price percentile results in a 43.29 times increase in the odds it is fruity. 
+
+
+# Identify any covariates that are significant
+None of the covariate is significant because onne of their p-value is below 0.05
+
+
+# 4. Report the Accuracy of your logistic regression model
+```{r}
+trainingData = candy[,c('crispedricewafer','chocolate','pricepercent')]
+trainingData = cbind(1,trainingData)
+
+coefficients = as.matrix(coef(model))
+predictions = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(candy$bar==decisions)
+print(Accuracy)
+```
+We can make correct guesses about whether the candy is candy bar approximately 83/5% of the time by fitting a logistic regression model and including the price percentile, and whether it contains chocolate, and whether it contains crisped rice, wafers, or a cookie component.
+
+
