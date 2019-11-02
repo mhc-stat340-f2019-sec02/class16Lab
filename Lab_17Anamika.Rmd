@@ -1,0 +1,63 @@
+---
+title: "Lab17_Code"
+author: Anamika Khanal
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1.Choose a candy characteristic and build a logistic regression model. Your model must include
+	- 3 covariates
+	- Predict a different candy characteristic than the one we go over in class.
+```{r}
+library(curl)
+data <- read.csv(curl("https://raw.githubusercontent.com/fivethirtyeight/data/master/candy-power-ranking/candy-data.csv"))
+```
+I will be choosing caramel as a candy characteristics and sugarpercent, pricepercent and hard as three covariates. 
+
+```{r}
+bernoulliLogR = glm(caramel~sugarpercent+pricepercent+hard , data = data, family = binomial)
+print(summary(bernoulliLogR))
+
+```
+3. Describe the coefficients corresponding to your covariates
+	- Explain what the coefficients mean in terms of **log odds** 
+	- Explain what the coefficients mean in terms of **odds**
+	- Identify any covariates that are significant
+	
+In terms of log odds, the intercept is -3.720. In terms of odds, the intercept is exp(-3.720)= 0.024. 
+For sugarpercent (Holding pricepercent and hard constant):
+An unit increase in sugarpercent percentage point increases the log odds of getting caramel candy by 2.029. The positive log odds indicate that higher sugarpercent is likely associated with caramel candies. 
+An unit increase in sugar percentage point increases the odds of getting caramel candy by 464% (exp(2.029)= 5.64).
+At 5% significance level, this covariate is not significant. 
+
+For price percent (Holding sugar percent and hard constant):
+An unit increase in price percentage point increases the log odds of getting caramel candy by 2.075. The positive log odds indicate that higher price percent is likely associated with caramel candies. 
+An unit increase in price percentage point increases the odds of getting caramel candy by 661 % (exp(2.075)= 7.606).
+At 5% significance level, this covariate is not significant. 
+
+For hard (Holding sugar percent and price percent constant):
+The log of odds of getting caramel for hard candies over the odds of getting caramel for soft candies is -1.022. The negative log odds indicate that higher sugarpercent is likely associated with non-caramel candies. 
+The odds of getting caramel for hard candies over the odds of getting caramel for soft candies is exp(-1.022)=0.359.
+At 5% significance level, this covariate is not significant. 
+
+4. Report the Accuracy of your logistic regression model
+```{r}
+trainingData  = data[,c('sugarpercent','pricepercent','hard')]
+trainingData  = cbind(1,trainingData)
+head(trainingData)
+coefficients = as.matrix(coef(bernoulliLogR))
+##na.omit(trainingData)
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(data$caramel==decisions)
+print(Accuracy)
+
+```
+
+We can make correct guesses about whether the candy has caramel approximately 85% of the time by fitting a logistic regression model and including the sugar and price percentile, and whether the candy is hard.
+
