@@ -1,5 +1,5 @@
 ---
-title: "candy_lab"
+title: "Ella Qiu"
 output: html_document
 ---
 # class17Lab
