@@ -2,29 +2,61 @@
 title: "Halloween Lab"
 author: "Susan Khan"
 date: "10/29/2019"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+```{r}
+library(RCurl)
+candydata <-read.csv(text=getURL("https://raw.githubusercontent.com/khan62s/data/master/candy-power-ranking/candy-data.csv"))
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+View(candydata)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
 ```
 
-## Including Plots
+2. Choose a candy characteristic and build a logistic regression model. Your model must include
+	- 3 covariates
+	- Predict a different candy characteristic than the one we go over in class.
+	
+I will be conducting my logistic regression on chocolate candy. The three covariates I am choosing are pricepercent, whether the candy is hard and whether the candy contains peanuts or almonds.
 
-You can also embed plots, for example:
+Description in terms of logodds:
+After fitting a regression model I found that the coeffiecient for peanutyalmondy is 1.4730 and pricepercent is 3.6331. Because the coefficient of these covariates are positive, we can say that candies that are more expensive or contain nuts are likely to be candies that contain chocolates. On the other hand, the coefficient for hard is -2.2722 implying that a hard candy is less like to contain chocolate.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Description in terms of odds:
+To describe in terms of odds, we need to take e^-2.0087=0.1342 of the intercept, e^1.4730=4.4 of peanuty and almondy, e^3.6331=37.8 of pricepercent and e^-2.2722=0.1031 of hard candy. A one unit increase in the candy containing peanuts or almonds results in a 4.4 times increase in the odds that the candy is chocolate flavored. A one unit increase in the price percent of the candy results in 37.8 times increase in the odds that the candy will be chocolate flavored. A one unit increase in the chances of the candy being a hard candy results in 0.103 times decrease in the chances of the candy being chocolate flavored.
+
+All the covariates are significant.
+
+
+```{r}
+model = glm(chocolate~peanutyalmondy+pricepercent+hard, data=candydata, family=binomial)
+
+summary(model)
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+4. Report the Accuracy of your logistic regression model
+
+```{r}
+trainingData  = candydata[,c('peanutyalmondy','pricepercent','hard')]
+trainingData  = cbind(1,trainingData)
+
+coefficients = as.matrix(coef(model))
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(candydata$chocolate==decisions)
+print(Accuracy)
+
+
+```
+
+We can make correct guesses about whether the candy is chocolate flavored approximately 80% of the time by fitting a logistic regression model and including the peanutyalmondy and price percentile, and whether the candy is hard.
