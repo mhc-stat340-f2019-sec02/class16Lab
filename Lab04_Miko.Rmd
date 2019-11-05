@@ -1,0 +1,72 @@
+---
+title: "Lab04_Miko"
+output: pdf_document
+---
+  
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Choose a candy characteristic and build a logistic regression model. Your model must include
+3 covariates
+Predict a different candy characteristic than the one we go over in class.
+```{r}
+#read the dataset
+
+
+model = glm( chocolate~sugarpercent+pricepercent+hard, data=candy_data, family=binomial)
+print(summary(model))
+
+
+```
+
+Explain what the coefficients mean in terms of log odds
+Explain what the coefficients mean in terms of odds
+Identify any covariates that are significant
+
+1.Description of target variable and covariates
+My model is trying to classify the candies by chocolate or not chocolate.
+I chose 3 covariates: The percentage of sugar,vthe unit price percentile compared to the other candy, and whether or not the candy is hard candy.And I fit a logistic regression model to my candy data.
+
+2.Description using log-odds
+For log-odds, the intercept equals $-1.89 $, sugar percentile equals $-0.4205$, price percentile equals $4.3406$, and whether it is a hard candy equals $-2.5652$. Candy with a higher sugar percentile or as a hard candy is less likely to be chocolate (negative log-odds). However, candy that is more expensive indicates the candy is more likely to be chocolate flavor (positive log-odds).
+
+3.Description using odds
+For the odds, the intercept equals $e^{-1.89}=0.151$, sugar percentile equals $e^{-0.4205}=0.656$, price percentile equals $e^{4.3406}=76.753$, and whether it is a hard candy  equals $e^{-2.5652}=0.07$. A one unit decrease in the sugar percentile of a piece of candy results in a $0.6$ times increase in the the odds it is chocolate. A one unit increase in the price percentile results in a 77 times increase in the odds it is chocolate. If the candy is hard, it is less likely to also be chocolate.
+
+Description of significant variables
+The price percentile is a significant covariate. The pvalue <0.05 and indicates the estimated log-odds is unlikely to have come from a null distribution centered at a log-odds of $0$.
+but the p value for sugar percentage is slightly larger than 0.05 but not significant enought to reject our null hypothesis that the coefficient of it is 0.
+
+
+```{r}
+#plot the model
+colors = ifelse( candy_data$chocolate==1,'red','blue')
+plot(candy_data$pricepercent,candy_data$sugarpercent,tck=0.02,col=colors)
+
+coefficients = as.matrix(coef(model))
+print(coefficients)
+
+xs = seq(0,1,0.01)
+lines(xs, (-coefficients[1]/coefficients[2]) - (coefficients[3]/coefficients[2])*xs)
+```
+
+```{r}
+trainingData  = candy_data[,c('sugarpercent','pricepercent','hard')]
+trainingData  = cbind(1,trainingData)
+
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(candy_data$chocolate==decisions)
+print(Accuracy)
+```
+Conclusion: Basically, we can guess correctly  about whether the candy is chocolate approximately 82% of the time by fitting a logistic regression model and including the sugar and price percentile, and whether the candy is hard.
+
+
+
+
+
+
