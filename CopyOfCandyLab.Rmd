@@ -1,0 +1,86 @@
+---
+title: "Candy Lab"
+author: "Minh Tam Hoang"
+date: "10/27/2019"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(readr)
+candy_data <- read_csv("CopyOfcandy-power-ranking/candy-data.csv")
+head(candy_data)
+```
+# Choose a candy characteristic and build a logistic regression model.
+```{r}
+model <- glm(candy_data$chocolate~candy_data$caramel + candy_data$sugarpercent + candy_data$hard)
+print(summary(model))
+```
+# Description of target variables and covariates
+In this model, we are trying to classify candy into "chocolate" group and "non-chocalate" group. Three covariates are used in this model, which are:
+- Caramel: whether or not the candy has caramel flavour.
+
+- sugar percentage: the percentage of sugar in the candy.
+
+- hard: whether or not the candy is hard.
+
+Logistic Regression Model is used to analyze the candy dataset.
+
+# Description of log-odds
+
+The intercept is 0.3912
+
+'Whether or not the candy has caramel flavour' is 0.2527 (positive log-odd)==> Candy that has caramel flavour indicates that the candy is likely to have chocolate flavour.
+
+The sugar percentage is 0.1631(positive log-odd)==>Candy with higher sugar percentage suggests that it falls into the chocolate group.
+
+'Whether or not the candy is hard' is -0.4286(negative log-odd) ==> Candy that is hard suggests that it is likely to have non-chocolate flavour.
+
+# Description of odds
+```{r}
+print(exp(0.3912))
+print(exp(0.2527))
+print(exp(0.1631))
+print(exp( -0.4286))
+```
+
+The intercept is 1.478754
+
+'Whether or not the candy has caramel flavour' is 1.287497==> If the candy has caramel flavour, it is likely to be in chocolate group.
+
+The sugar percentage is 1.177154==>For each unit increase in the sugar percentage of the candy, the odds that it has caramel flavour increase by 1.177154.
+'Whether or not the candy is hard' is 0.6514204 < 1 ==> Candy that is hard is unlikely to have chocolate flavour.
+
+# Description of significant variables
+
+'Whether or not the candy is hard'  is a significant covariate. The p-value is less than 0, which indicates that the null hypothesis that the distribution is centered at log-odds = 0 is rejected.
+
+# Plot:
+```{r}
+colors = ifelse( candy_data$chocolate==1,'yellow','blue')
+plot(candy_data$pricepercent,tck=0.02,col=colors)
+
+coefficients = as.matrix(coef(model))
+print(coefficients)
+
+
+```
+#Accuracy = TP+TN/ALL
+
+```{r}
+trainingData  = candy_data[,c('sugarpercent','caramel','hard')]
+trainingData  = cbind(1,trainingData)
+
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0, yes = 1,no = 0)
+
+Accuracy = mean(candy_data$chocolate==decisions)
+print(Accuracy)
+
+```
+
+With the logistic regression model which include 'sugar percentile', 'whether it is caramel' and 'whether it is hard', we are able to guess correctly if the candy falls into the chocolate group approximately 47% of the time.
+
+
