@@ -1,0 +1,75 @@
+---
+title: "Yixuan_He_class17_lab05"
+output: html_document
+---
+
+This lab explores a data set of candy comparisons.
+
+The 538 team created an experiment that collected over 250,000 data points. The experiment presented two randomly chosen types of candy to participants and asked them to chose which they would prefer as a trick-or-treater. The original experiment is here.
+
+The dataset description can be found here.
+
+The data collected characteristics of each type of candy presented to participants. The goal of this lab is to pick your favorite candy characteristics and build a logistic model that predicts this characteristic.
+
+Instructions:
+
+Fork the 538 repository
+Rep:https://github.com/fivethirtyeight/data/tree/master/candy-power-ranking
+Choose a candy characteristic and build a logistic regression model. Your model must include
+3 covariates
+Predict a different candy characteristic than the one we go over in class.
+Describe the coefficients corresponding to your covariates
+Explain what the coefficients mean in terms of log odds
+Explain what the coefficients mean in terms of odds
+Identify any covariates that are significant
+Report the Accuracy of your logistic regression model
+
+```{r}
+d = read.csv("https://raw.githubusercontent.com/tomcm39/data/master/candy-power-ranking/candy-data.csv")
+
+#Build a logistic model for "nougat" candy characteristic
+model = glm(nougat~peanutyalmondy+chocolate+hard, data=d, family=binomial)
+print(summary(model))
+```
+
+**Corresponding coefficients** 
+
+In my model attempting to classify candy as containing nougat or not, I chose 3 covariants: whether or not it contains peanuts, peanut butter or almonds; whether ot not it contains chocolate; whether or not it is a hard candy. 
+The intercept is $-3.56$. Whether or not it contains peanuts, peanut butter or almonds is $0.75$. Whether ot not it contains chocolate is $1.65$. Whether ot not it is a hard candy is $-16.22$.
+
+**Description using log-odds**
+
+In terms of log-odds, the intercept equals $-3.56$, whether or not it contains peanuts, peanut butter or almonds equals $0.75$, whether ot not it contains chocolate equals $1.65$, whether ot not it is a hard candy equals $-16.22$. 
+
+Candy containing peanuts, peanut butter or almonds or chocolate could indicate it contains nougat (positive log-odds). However, candy that is hard indicates the candy may not contain nougat (negative log-odds).
+
+**Description using odds**
+
+In terms of odds, the intercept equals $e^{-3.56}=0.03$, whether or not it contains peanuts, peanut butter or almonds equals $e^{0.75}=2.11$, whether ot not it contains chocolate equals $e^{1.65}=5.21$, whether ot not it is a hard candy equals $e^{-16.22}=9.03e^{-8}<0.01$.
+
+A one unit increase in whether or not the candy contains peanuts, peanut butter or almonds results in a $2.11$ times increase in the the odds it contains nougat. A one unit increase in whether ot not the candy contains chocolate results in a $5.21$ times decrease in the odds it contains nougat. If the candy is hard, it is extremely unlikely to also contain nougat.
+
+**Description of significant variables**
+
+Surprisingly, none of them are significant. I still kept it this way because I truly think they should be and would like to ask if there is a possible way to figure out why not. Especially for whether it is a hard candy, I was very confident that it would be extremely unlikely to have both characteristics and the statistics would be significant.
+
+**Accuracy**
+```{r}
+coefficients = as.matrix(coef(model))
+
+trainingData  = d[,c('peanutyalmondy','chocolate','hard')]
+trainingData  = cbind(1,trainingData)
+
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(d$nougat==decisions)
+print(Accuracy)
+```
+We can make correct guesses about whether the candy contains nougat approximately 92% of the time by fitting a logistic regression model and including whether the candy contains peanuts, peanut butter or almonds or chocolate and whether it is hard.
+This conclusion makes me even more curious about why the regression result isn't significant.
+
+**Resources**
+
+https://github.com/mhc-stat340-f2019-sec02/class17Lab/blob/master/pmLAB.ipynb
