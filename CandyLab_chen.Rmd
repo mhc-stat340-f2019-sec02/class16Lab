@@ -1,0 +1,41 @@
+#Candy Comparison Lab
+
+```{r}
+#1. Fork the 538 repository
+#2. Choose a candy characteristic and build a logistic regression model. Your model must include 3 covariates. Predict a different candy characteristic than the one we go over in class.
+candy_data <- read_csv("candy-data.csv", 
+    col_types = cols(chocolate = col_number(), 
+        pricepercent = col_number(), sugarpercent = col_number(), 
+        winpercent = col_number()))
+model = glm(chocolate~sugarpercent+pricepercent+bar, data=candy_data, family=binomial)
+summary(model)
+
+```
+#3. Describe the coefficients corresponding to your covariates
+```{r}
+#My model is classifying candy as containing chocolate or nnot containing chocolate. I choose 3 covariates: the percentage of sugar in the candy, the unit price percentile compared to other candy, and whether or not the candy is in the shape of a bar. 
+
+#a. Explain what the coefficients mean in terms of log odds
+
+#The intercept equals -2.00, the sugar percentile equals -0.45, the price percentile is 2.84, and whether or not it's in the shape of bar equals 3.30. Candy with a higher sugar percentage indicates it is unlikely to contain chocolate (negative log odd). Candy that is more expensive or in the shape of a bar is likely to contain chocolate (positive log odds). 
+
+#b. Explain what the coefficients mean in terms of odds
+#The intercept equals e^{-2}=0.14, sugar percentile equals e^{-0.45}=0.64, the price percentile is e^{2.84}=17.12, and whether or not it's a bar equals e^{3.30}=27.11. A one unit increase in the sugar percentile of a piece of candy results in 0.64 times decrease in the the odds it contains chocolate. A one unit increase in the price percentile results in a 17.12 times increase in the odds it contains chocolate. A one unit increase in the possibility that whether or not the candy is formed as a bar results in a 27.11 increase in the odds it contains chocolate. 
+
+#c. Identify any covariates that are significant
+#The price percentile and whether or not the candy is in bar form are both significant covariates. Both have p-value <0.05, which indicates the estimated log odds is unlikely to have come from a null distribution centered at a log odds of 0. 
+```
+##4. Report the Accuracy of your logistic regression model
+
+```{r}
+training = candy_data[,c('sugarpercent','pricepercent','bar')]
+training = cbind(1,training)
+coefficients = as.matrix(coef(model))
+predict = as.matrix(training) %*% coefficients
+probability = exp(predict)/(1+predict)
+decision = ifelse(predict>=0,1,0)
+
+Accuracy = mean(candy_data$chocolate==decision)
+Accuracy
+```
+The accuracy is 0.79, which means we can make correcct guesses about whether the candy contains chocolate or not for about 79% of the time by fitting a logistic regression model and including the sugar and price percentile, and whether the candy is a bar. 
