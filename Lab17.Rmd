@@ -1,0 +1,58 @@
+---
+title: "Lab17"
+author: "Kaiwen Lu & Evelyn Zhang"
+date: "11/1/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Fork the 538 repository 
+```{r}
+d <- read.csv("./candy-data.csv")
+d
+```
+
+# 2. Choose a candy characteristic and build a logistic regression model. 
+
+```{r}
+# 3 covariates are: chocolate, sugarpercent, bar
+# Predict: hard | Is it a hard candy?
+model <- glm(hard~chocolate+sugarpercent+bar, data=d, family=binomial)
+summary(model)
+
+```
+
+# 3. Describe the coefficients corresponding to your covariates
+# a) Explain what the coefficients mean in terms of log odds
+# Ans: 
+# chocolate: If the candy contains chocolate, the log odds that it is a hard candy decreases by 1.9862.
+# sugarpercent: For a one unit increase in the candy's sugar percent, the log odds that it is a hard candy increases by 1.1533. 
+# bar: If the candy is a bar, the log odds that it is a hard candy decreases by 16.9937.
+
+# b)Explain what the coefficients mean in terms of odds
+# Ans: 
+# chocolate: If the candy contains chocolate, the odds that it is a hard candy decreases by e^1.9862 or roughly 7.3.
+# sugarpercent: For a one unit increase in the candy's sugar percent, the odds that it is a hard candy increases by e^1.1533 or roughly 3.17. 
+# bar: If the candy is a bar, the odds that it is a hard candy decreases by e^-16.9937 or almost 0.
+
+# c)Identify any covariates that are significant
+# Ans: No covariate is significant
+
+
+# 4.Report the Accuracy of your logistic regression model
+```{r}
+trainingData  = d[,c('sugarpercent','chocolate','bar')]
+trainingData  = cbind(1,trainingData)
+
+coefficients = as.matrix(coef(model))
+predictions   = as.matrix(trainingData) %*% coefficients
+probabilities = exp(predictions)/(1+predictions)
+decisions = ifelse(predictions>=0,1,0)
+
+Accuracy = mean(d$hard==decisions)
+print(Accuracy)
+```
+#We can make correct guesses about whether the candy is hard approximately 82% of the time by fitting a logistic regression model and including the sugar percentile, and whether the candy is chocolate or a bar.
